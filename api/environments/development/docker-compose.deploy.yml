@@ -1,0 +1,41 @@
+version: "3.8"
+
+services:
+  api:
+    image: 413927280130.dkr.ecr.ap-south-1.amazonaws.com/api-dev-genie:latest
+    entrypoint: /entrypoint.sh
+    env_file:
+      - .env
+    ports:
+      - "80:8000"
+    depends_on:
+      - database
+
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+
+  celery:
+    image: 413927280130.dkr.ecr.ap-south-1.amazonaws.com/api-dev-genie:latest
+    command: celery -A project.development worker -l debug
+    depends_on:
+      - redis
+    env_file:
+      - .env
+
+  database:
+    image: postgres:13
+    container_name: development.database
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=development_user
+      - POSTGRES_PASSWORD=development_omnitrixxlr18
+      - POSTGRES_DB=development_database
+    volumes:
+      - database_data:/var/lib/postgresql/data
+
+volumes:
+  static_data:
+  database_data:

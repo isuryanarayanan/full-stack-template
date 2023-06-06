@@ -1,0 +1,62 @@
+version: "3.8"
+
+services:
+  project-development:
+    container_name: development.project
+    # command: python manage.py runserver 0.0.0.0:8000
+    entrypoint: /entrypoint.sh
+    build:
+      context: ../../
+      dockerfile: ./conf/development/Dockerfile
+      args:
+        - USER_ID=$UID
+        - GROUP_ID=$GID
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+    volumes:
+      - static_data:/vol/web
+      - ../../project:/app
+    # depends_on:
+    #   - database
+
+  redis:
+    image: redis:alpine
+    container_name: development.redis
+    ports:
+      - "6379:6379"
+
+  celery:
+    container_name: development.celery
+    build:
+      context: ../../
+      dockerfile: ./conf/development/Dockerfile
+      args:
+        - USER_ID=$UID
+        - GROUP_ID=$GID
+    env_file:
+      - .env
+    command: celery -A project.development worker -l debug
+    depends_on:
+      - redis
+    volumes:
+      - static_data:/vol/web
+      - ../../project:/app
+
+  # database2:
+  #   image: postgres:13
+  #   container_name: development.database2
+  #   ports:
+  #     - "5432:5432"
+  #   environment:
+  #     - POSTGRES_USER=development_user
+  #     - POSTGRES_PASSWORD=development_omnitrixxlr18
+  #     - POSTGRES_DB=development_database
+  #     # - POSTGRES_HOST=api-dev-genie.ap-south-1.elasticbeanstalk.com
+  #   volumes:
+  #     - database_data:/var/lib/postgresql/data
+
+volumes:
+  static_data:
+  database_data:

@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+
+  project-local:
+    container_name: local.project
+    command: python manage.py runserver 0.0.0.0:8000
+    build:
+      context: ../../
+      dockerfile: ./conf/local/Dockerfile
+      args:
+        - USER_ID=$UID
+        - GROUP_ID=$GID
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+    volumes:
+      - static_data:/vol/web
+      - ../../project:/app
+ 
+volumes:
+  static_data:

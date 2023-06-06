@@ -1,0 +1,26 @@
+version: "3.8"
+
+services:
+  api:
+    image: <ecr-repo>.dkr.ecr.ap-south-1.amazonaws.com/<project>:latest
+    entrypoint: /entrypoint.sh
+    env_file:
+      - .env
+    ports:
+      - "80:8000"
+
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+
+  celery:
+    image: <ecr-repo>.dkr.ecr.ap-south-1.amazonaws.com/<project>:latest
+    command: celery -A project.production worker -l debug
+    depends_on:
+      - redis
+    env_file:
+      - .env
+
+volumes:
+  static_data:

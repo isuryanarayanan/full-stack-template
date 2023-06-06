@@ -1,0 +1,6 @@
+{
+  "name": "production",
+  "description": "Production environment for api",
+  "keyword": "production",
+  "binded": true
+}
